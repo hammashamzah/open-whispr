@@ -213,6 +213,22 @@ declare global {
       // Audio
       onNoAudioDetected: (callback: (event: any, data?: any) => void) => (() => void) | void;
 
+      // Audio ducking (mute/lower other audio during recording)
+      duckAudio: (options?: {
+        level?: "min" | "default" | "mid" | "max";
+        advanced?: boolean;
+      }) => Promise<{ success: boolean; error?: string }>;
+      restoreAudio: () => Promise<{ success: boolean; error?: string }>;
+      getDuckingStatus: () => Promise<{
+        isActive: boolean;
+        fallbackMode: boolean;
+        nativeAvailable: boolean;
+      }>;
+      configureDucking: (options: {
+        level?: "min" | "default" | "mid" | "max";
+        advanced?: boolean;
+      }) => Promise<{ success: boolean; error?: string }>;
+
       // Whisper operations (whisper.cpp)
       transcribeLocalWhisper: (audioBlob: Blob | ArrayBuffer, options?: any) => Promise<any>;
       checkWhisperInstallation: () => Promise<WhisperCheckResult>;

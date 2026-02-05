@@ -164,6 +164,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
   // Audio event listeners
   onNoAudioDetected: registerListener("no-audio-detected"),
 
+  // Audio ducking (mute/lower other audio during recording)
+  duckAudio: (options) => ipcRenderer.invoke("duck-audio", options),
+  restoreAudio: () => ipcRenderer.invoke("restore-audio"),
+  getDuckingStatus: () => ipcRenderer.invoke("get-ducking-status"),
+  configureDucking: (options) => ipcRenderer.invoke("configure-ducking", options),
+
   // External link opener
   openExternal: (url) => ipcRenderer.invoke("open-external", url),
   

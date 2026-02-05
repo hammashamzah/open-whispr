@@ -15,6 +15,7 @@ class IPCHandlers {
     this.windowManager = managers.windowManager;
     this.updateManager = managers.updateManager;
     this.windowsKeyManager = managers.windowsKeyManager;
+    this.audioDuckingManager = managers.audioDuckingManager;
     this.setupHandlers();
   }
 
@@ -1053,6 +1054,52 @@ class IPCHandlers {
 
     ipcMain.handle("get-update-info", async () => {
       return this.updateManager.getUpdateInfo();
+    });
+
+    // Audio ducking handlers (mute/lower other audio during recording)
+    ipcMain.handle("duck-audio", async (event, options = {}) => {
+      if (!this.audioDuckingManager) {
+        return { success: false, error: "Audio ducking manager not available" };
+      }
+      try {
+        const success = await this.audioDuckingManager.startDucking(options);
+        return { success };
+      } catch (error) {
+        debugLogger.error("Failed to start audio ducking:", error);
+        return { success: false, error: error.message };
+      }
+    });
+
+    ipcMain.handle("restore-audio", async () => {
+      if (!this.audioDuckingManager) {
+        return { success: false, error: "Audio ducking manager not available" };
+      }
+      try {
+        await this.audioDuckingManager.stopDucking();
+        return { success: true };
+      } catch (error) {
+        debugLogger.error("Failed to restore audio:", error);
+        return { success: false, error: error.message };
+      }
+    });
+
+    ipcMain.handle("get-ducking-status", async () => {
+      if (!this.audioDuckingManager) {
+        return { isActive: false, fallbackMode: false, nativeAvailable: false };
+      }
+      return this.audioDuckingManager.getStatus();
+    });
+
+    ipcMain.handle("configure-ducking", async (event, options) => {
+      if (!this.audioDuckingManager) {
+        return { success: false, error: "Audio ducking manager not available" };
+      }
+      try {
+        this.audioDuckingManager.configure(options);
+        return { success: true };
+      } catch (error) {
+        return { success: false, error: error.message };
+      }
     });
   }
 

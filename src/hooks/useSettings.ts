@@ -398,6 +398,16 @@ export function useSettings() {
     deserialize: String,
   });
 
+  // Audio ducking - mute/lower other audio while dictating (macOS only)
+  const [muteAudioWhileDictating, setMuteAudioWhileDictating] = useLocalStorage(
+    "muteAudioWhileDictating",
+    false,
+    {
+      serialize: String,
+      deserialize: (value) => value === "true",
+    }
+  );
+
   // Computed values
   const reasoningProvider = getModelProvider(reasoningModel);
 
@@ -543,6 +553,8 @@ export function useSettings() {
     selectedMicDeviceId,
     setPreferBuiltInMic,
     setSelectedMicDeviceId,
+    muteAudioWhileDictating,
+    setMuteAudioWhileDictating,
     updateTranscriptionSettings,
     updateReasoningSettings,
     updateApiKeys,

@@ -50,6 +50,7 @@ const IPCHandlers = require("./src/helpers/ipcHandlers");
 const UpdateManager = require("./src/updater");
 const GlobeKeyManager = require("./src/helpers/globeKeyManager");
 const WindowsKeyManager = require("./src/helpers/windowsKeyManager");
+const AudioDuckingManager = require("./src/helpers/audioDuckingManager");
 
 // Manager instances - initialized after app.whenReady()
 let debugLogger = null;
@@ -64,6 +65,7 @@ let trayManager = null;
 let updateManager = null;
 let globeKeyManager = null;
 let windowsKeyManager = null;
+let audioDuckingManager = null;
 let globeKeyAlertShown = false;
 
 // Set up PATH for production builds to find system tools (whisper.cpp, ffmpeg)
@@ -110,6 +112,7 @@ function initializeManagers() {
   updateManager = new UpdateManager();
   globeKeyManager = new GlobeKeyManager();
   windowsKeyManager = new WindowsKeyManager();
+  audioDuckingManager = new AudioDuckingManager();
 
   // Set up Globe key error handler on macOS
   if (process.platform === "darwin") {
@@ -151,6 +154,7 @@ function initializeManagers() {
     windowManager,
     updateManager,
     windowsKeyManager,
+    audioDuckingManager,
   });
 }
 

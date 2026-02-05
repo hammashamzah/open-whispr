@@ -155,6 +155,11 @@ class AudioManager {
         stream.getTracks().forEach((track) => track.stop());
       };
 
+      // Duck audio if enabled (mute music apps during recording)
+      if (this.shouldDuckAudio()) {
+        this.duckAudio();
+      }
+
       this.mediaRecorder.start();
       this.isRecording = true;
       this.onStateChange?.({ isRecording: true, isProcessing: false });
@@ -203,6 +208,8 @@ class AudioManager {
         this.audioChunks = [];
         this.recordingStartTime = null;
         this.onStateChange?.({ isRecording: false, isProcessing: false });
+        // Restore audio when recording is cancelled
+        this.restoreAudio();
       };
 
       this.mediaRecorder.stop();
@@ -285,6 +292,37 @@ class AudioManager {
     } finally {
       this.isProcessing = false;
       this.onStateChange?.({ isRecording: false, isProcessing: false });
+      // Restore audio after processing is complete
+      this.restoreAudio();
+    }
+  }
+
+  /**
+   * Check if audio ducking is enabled
+   */
+  shouldDuckAudio() {
+    return localStorage.getItem("muteAudioWhileDictating") === "true";
+  }
+
+  /**
+   * Duck (mute/lower) other audio sources during recording
+   */
+  duckAudio() {
+    if (typeof window !== "undefined" && window.electronAPI?.duckAudio) {
+      window.electronAPI.duckAudio().catch((err) => {
+        logger.debug("Audio ducking failed (non-fatal):", err, "audio");
+      });
+    }
+  }
+
+  /**
+   * Restore audio after recording/processing is complete
+   */
+  restoreAudio() {
+    if (typeof window !== "undefined" && window.electronAPI?.restoreAudio) {
+      window.electronAPI.restoreAudio().catch((err) => {
+        logger.debug("Audio restore failed (non-fatal):", err, "audio");
+      });
     }
   }
 
